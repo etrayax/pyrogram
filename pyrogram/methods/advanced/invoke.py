@@ -28,11 +28,12 @@ log = logging.getLogger(__name__)
 
 class Invoke:
     async def invoke(
-        self: "pyrogram.Client",
-        query: TLObject,
-        retries: int = Session.MAX_RETRIES,
-        timeout: float = Session.WAIT_TIMEOUT,
-        sleep_threshold: float = None
+            self: "pyrogram.Client",
+            query: TLObject,
+            retries: int = Session.MAX_RETRIES,
+            timeout: float = Session.WAIT_TIMEOUT,
+            sleep_threshold: float = None,
+            business_connection_id: str = None
     ):
         """Invoke raw Telegram functions.
 
@@ -69,6 +70,12 @@ class Invoke:
         """
         if not self.is_connected:
             raise ConnectionError("Client has not been started yet")
+
+        if business_connection_id:
+            query = raw.functions.InvokeWithBusinessConnection(
+                connection_id=business_connection_id,
+                query=query
+            )
 
         if self.no_updates:
             query = raw.functions.InvokeWithoutUpdates(query=query)

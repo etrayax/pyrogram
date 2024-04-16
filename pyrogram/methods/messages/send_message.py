@@ -26,24 +26,23 @@ from pyrogram import types
 
 class SendMessage:
     async def send_message(
-        self: "pyrogram.Client",
-        chat_id: Union[int, str],
-        text: str,
-        business_connection_id: str = None,
-        parse_mode: Optional["enums.ParseMode"] = None,
-        entities: List["types.MessageEntity"] = None,
-        link_preview_options: "types.LinkPreviewOptions" = None,
-        disable_web_page_preview: bool = None,
-        disable_notification: bool = None,
-        reply_to_message_id: int = None,
-        schedule_date: datetime = None,
-        protect_content: bool = None,
-        reply_markup: Union[
-            "types.InlineKeyboardMarkup",
-            "types.ReplyKeyboardMarkup",
-            "types.ReplyKeyboardRemove",
-            "types.ForceReply"
-        ] = None
+            self: "pyrogram.Client",
+            chat_id: Union[int, str],
+            text: str,
+            business_connection_id: str = None,
+            parse_mode: Optional["enums.ParseMode"] = None,
+            entities: List["types.MessageEntity"] = None,
+            disable_web_page_preview: bool = None,
+            disable_notification: bool = None,
+            reply_to_message_id: int = None,
+            schedule_date: datetime = None,
+            protect_content: bool = None,
+            reply_markup: Union[
+                "types.InlineKeyboardMarkup",
+                "types.ReplyKeyboardMarkup",
+                "types.ReplyKeyboardRemove",
+                "types.ForceReply"
+            ] = None
     ) -> "types.Message":
         """Send text messages.
 
@@ -146,9 +145,8 @@ class SendMessage:
                 message=message,
                 entities=entities,
                 noforwards=protect_content,
-                business_connection_id=business_connection_id,
-                link_preview_options=link_preview_options
             ),
+            business_connection_id=business_connection_id,
         )
 
         if isinstance(r, raw.types.UpdateShortSentMessage):
@@ -181,9 +179,11 @@ class SendMessage:
         for i in r.updates:
             if isinstance(i, (raw.types.UpdateNewMessage,
                               raw.types.UpdateNewChannelMessage,
-                              raw.types.UpdateNewScheduledMessage)):
+                              raw.types.UpdateNewScheduledMessage,
+                              raw.types.UpdateBotEditBusinessMessage,
+                              raw.types.UpdateBotNewBusinessMessage)):
                 return await types.Message._parse(
-                    self, i.message,
+                    self, i,
                     {i.id: i for i in r.users},
                     {i.id: i for i in r.chats},
                     is_scheduled=isinstance(i, raw.types.UpdateNewScheduledMessage)

@@ -21,7 +21,7 @@ from typing import Callable
 from .handler import Handler
 
 
-class DeleteBusinessMessagesHandler(Handler):
+class DeletedBusinessMessagesHandler(Handler):
     """The Business Message handler class.
     Messages were deleted from a connected business account.
     It is intended to be used with :meth:`~pyrogram.Client.add_handler`
