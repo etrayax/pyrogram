@@ -29,8 +29,10 @@ class SendMessage:
         self: "pyrogram.Client",
         chat_id: Union[int, str],
         text: str,
+        business_connection_id: str = None,
         parse_mode: Optional["enums.ParseMode"] = None,
         entities: List["types.MessageEntity"] = None,
+        link_preview_options: "types.LinkPreviewOptions" = None,
         disable_web_page_preview: bool = None,
         disable_notification: bool = None,
         reply_to_message_id: int = None,
@@ -56,12 +58,18 @@ class SendMessage:
             text (``str``):
                 Text of the message to be sent.
 
+            business_connection_id (``str``):
+                Unique identifier of the business connection on behalf of which the message will be sent.
+
             parse_mode (:obj:`~pyrogram.enums.ParseMode`, *optional*):
                 By default, texts are parsed using both Markdown and HTML styles.
                 You can combine both syntaxes together.
 
             entities (List of :obj:`~pyrogram.types.MessageEntity`):
                 List of special entities that appear in message text, which can be specified instead of *parse_mode*.
+
+            link_preview_options (:obj:`~pyrogram.enums.LinkPreviewOptions`, *optional*)::
+                Link preview generation options for the message
 
             disable_web_page_preview (``bool``, *optional*):
                 Disables link previews for links in this message.
@@ -91,6 +99,9 @@ class SendMessage:
 
                 # Simple example
                 await app.send_message("me", "Message sent with **Pyrogram**!")
+
+                # Simple example for sending a message to business account
+                await app.send_message("me", "Message sent with **Pyrogram**!", connection_id)
 
                 # Disable web page previews
                 await app.send_message("me", "https://docs.pyrogram.org",
@@ -128,14 +139,16 @@ class SendMessage:
                 peer=await self.resolve_peer(chat_id),
                 no_webpage=disable_web_page_preview or None,
                 silent=disable_notification or None,
-                reply_to_msg_id=reply_to_message_id,
+                reply_to=reply_to_message_id,
                 random_id=self.rnd_id(),
                 schedule_date=utils.datetime_to_timestamp(schedule_date),
                 reply_markup=await reply_markup.write(self) if reply_markup else None,
                 message=message,
                 entities=entities,
-                noforwards=protect_content
-            )
+                noforwards=protect_content,
+                business_connection_id=business_connection_id,
+                link_preview_options=link_preview_options
+            ),
         )
 
         if isinstance(r, raw.types.UpdateShortSentMessage):

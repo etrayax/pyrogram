@@ -17,9 +17,10 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from builtins import isinstance
 from datetime import datetime
 from functools import partial
-from typing import List, Match, Union, BinaryIO, Optional, Callable
+from typing import List, Match, Union, BinaryIO, Optional, Callable, Any
 
 import pyrogram
 from pyrogram import raw, enums
@@ -72,8 +73,19 @@ class Message(Object, Update):
             The supergroup itself for messages from anonymous group administrators.
             The linked channel for messages automatically forwarded to the discussion group.
 
+        sender_boost_count (``int``, *optional*):
+            If the sender of the message boosted the chat, the number of boosts added by the user
+
+        sender_business_bot (:obj:`~pyrogram.types.User`, *optional*):
+            The bot that actually sent the message on behalf of the business account.
+            Available only for outgoing messages sent on behalf of the connected business account.
+
         date (:py:obj:`~datetime.datetime`, *optional*):
             Date the message was sent.
+
+        business_connection_id (``str``, *optional*):
+            Unique identifier of the business connection from which the message was received.
+            If non-empty, the message belongs to a chat of the corresponding business account that is independent from any potential bot chat which might share the same identifier.
 
         chat (:obj:`~pyrogram.types.Chat`, *optional*):
             Conversation the message belongs to.
@@ -96,6 +108,12 @@ class Message(Object, Update):
         forward_date (:py:obj:`~datetime.datetime`, *optional*):
             For forwarded messages, date the original message was sent.
 
+        is_topic_message (``bool``, *optional*):
+            True, if the message is sent to a forum topic
+
+        is_automatic_forward (``bool``, *optional*):
+            True, if the message is a channel post that was automatically forwarded to the connected discussion group
+
         reply_to_message_id (``int``, *optional*):
             The id of the message which this message directly replied to.
 
@@ -103,8 +121,23 @@ class Message(Object, Update):
             The id of the first message which started this message thread.
 
         reply_to_message (:obj:`~pyrogram.types.Message`, *optional*):
-            For replies, the original message. Note that the Message object in this field will not contain
+            For replies, the original message. Note that the Message object in this field will not contain.
             further reply_to_message fields even if it itself is a reply.
+
+        external_reply (:obj:`~pyrogram.types.ExternalReplyInfo`, *optional*):
+            Information about the message that is being replied to, which may come from another chat or forum topic.
+
+        quote (:obj:`~pyrogram.types.TextQuote`, *optional*):
+            For replies that quote part of the original message, the quoted part of the message.
+
+        reply_to_story (:obj:`~pyrogram.types.Story`, *optional*):
+            For replies to a story, the original story.
+
+        is_from_offline (``bool``, *optional*):
+            True, if the message was sent by an implicit action, for example, as an away or a greeting business message, or as a scheduled message.
+
+        link_preview_options (:obj:`~pyrogram.types.LinkPreviewOptions	`, *optional*):
+            Options used for link preview generation for the message, if it is a text message and link preview options were changed.
 
         mentioned (``bool``, *optional*):
             The message contains a mention.
@@ -234,6 +267,9 @@ class Message(Object, Update):
             channel when it is created. It can only be found in reply_to_message if someone replies to a very
             first message in a channel.
 
+        message_auto_delete_timer_changed (:obj:`~pyrogram.types.MessageAutoDeleteTimerChanged`, *optional*):
+            Service message: auto-delete timer settings changed in the chat.
+
         migrate_to_chat_id (``int``, *optional*):
             The group has been migrated to a supergroup with the specified identifier.
             This number may be greater than 32 bits and some programming languages may have difficulty/silent defects
@@ -303,88 +339,180 @@ class Message(Object, Update):
 
         link (``str``, *property*):
             Generate a link to this message, only for groups and channels.
+
+        invoice (:obj:`~pyrogram.types.Invoice`, *property*):
+            Message is an invoice for a payment, information about the invoice.
+
+        successful_payment (:obj:`~pyrogram.types.SuccessfulPayment	`, *property*):
+            Message is a service message about a successful payment, information about the payment.
+
+        users_shared (:obj:`~pyrogram.types.UsersShared`, *property*):
+            Service message: users were shared with the bot.
+
+        chat_shared (:obj:`~pyrogram.types.ChatShared`, *property*):
+            Service message: a chat was shared with the bot
+
+        connected_website (``str``, *property*):
+            The domain name of the website on which the user has logged in.
+
+        write_access_allowed (:obj:`~pyrogram.types.WriteAccessAllowed`, *property*):
+            Service message: the user allowed the bot to write messages after adding it to the attachment or side menu, launching a Web App from a link, or accepting an explicit request from a Web App sent by the method requestWriteAccess.
+
+        passport_data (:obj:`~pyrogram.types.PassportData`, *property*):
+            Telegram Passport data.
+
+        proximity_alert_triggered (:obj:`~pyrogram.types.ProximityAlertTriggered`, *property*):
+            Service message. A user in the chat triggered another user's proximity alert while sharing Live Location.
+
+        boost_added (:obj:`~pyrogram.types.ChatBoostAdded`, *property*):
+            Service message: user boosted the chat.
+
+        forum_topic_created (:obj:`~pyrogram.types.ForumTopicCreated`, *property*):
+            Service message: forum topic created.
+
+        forum_topic_edited (:obj:`~pyrogram.types.ForumTopicEdited`, *property*):
+            Service message: forum topic edited.
+
+        forum_topic_closed (:obj:`~pyrogram.types.ForumTopicClosed`, *property*):
+            Service message: forum topic closed.
+
+        forum_topic_reopened (:obj:`~pyrogram.types.ForumTopicReopened`, *property*):
+            Service message: forum topic reopened.
+
+        general_forum_topic_hidden (:obj:`~pyrogram.types.GeneralForumTopicHidden`, *property*):
+            Service message: the 'General' forum topic hidden.
+
+        general_forum_topic_unhidden (:obj:`~pyrogram.types.GeneralForumTopicUnhidden`, *property*):
+            Service message: the 'General' forum topic unhidden.
+
+        giveaway_created (:obj:`~pyrogram.types.GiveawayCreated`, *property*):
+            Service message: a scheduled giveaway was created.
+
+        giveaway (:obj:`~pyrogram.types.Giveaway`, *property*):
+            The message is a scheduled giveaway message.
+
+        giveaway_winners (:obj:`~pyrogram.types.GiveawayWinners`, *property*):
+            A giveaway with public winners was completed.
+
+        giveaway_completed (:obj:`~pyrogram.types.GiveawayCompleted`, *property*):
+            Service message: a giveaway without public winners was completed.
+
+        video_chat_participants_invited (:obj:`~pyrogram.types.VideoChatParticipantsInvited`, *property*):
+            Service message: new participants invited to a video chat.
+
     """
 
     # TODO: Add game missing field. Also invoice, successful_payment, connected_website
 
     def __init__(
-        self,
-        *,
-        client: "pyrogram.Client" = None,
-        id: int,
-        from_user: "types.User" = None,
-        sender_chat: "types.Chat" = None,
-        date: datetime = None,
-        chat: "types.Chat" = None,
-        forward_from: "types.User" = None,
-        forward_sender_name: str = None,
-        forward_from_chat: "types.Chat" = None,
-        forward_from_message_id: int = None,
-        forward_signature: str = None,
-        forward_date: datetime = None,
-        reply_to_message_id: int = None,
-        reply_to_top_message_id: int = None,
-        reply_to_message: "Message" = None,
-        mentioned: bool = None,
-        empty: bool = None,
-        service: "enums.MessageServiceType" = None,
-        scheduled: bool = None,
-        from_scheduled: bool = None,
-        media: "enums.MessageMediaType" = None,
-        edit_date: datetime = None,
-        media_group_id: str = None,
-        author_signature: str = None,
-        has_protected_content: bool = None,
-        has_media_spoiler: bool = None,
-        text: Str = None,
-        entities: List["types.MessageEntity"] = None,
-        caption_entities: List["types.MessageEntity"] = None,
-        audio: "types.Audio" = None,
-        document: "types.Document" = None,
-        photo: "types.Photo" = None,
-        sticker: "types.Sticker" = None,
-        animation: "types.Animation" = None,
-        game: "types.Game" = None,
-        video: "types.Video" = None,
-        voice: "types.Voice" = None,
-        video_note: "types.VideoNote" = None,
-        caption: Str = None,
-        contact: "types.Contact" = None,
-        location: "types.Location" = None,
-        venue: "types.Venue" = None,
-        web_page: "types.WebPage" = None,
-        poll: "types.Poll" = None,
-        dice: "types.Dice" = None,
-        new_chat_members: List["types.User"] = None,
-        left_chat_member: "types.User" = None,
-        new_chat_title: str = None,
-        new_chat_photo: "types.Photo" = None,
-        delete_chat_photo: bool = None,
-        group_chat_created: bool = None,
-        supergroup_chat_created: bool = None,
-        channel_chat_created: bool = None,
-        migrate_to_chat_id: int = None,
-        migrate_from_chat_id: int = None,
-        pinned_message: "Message" = None,
-        game_high_score: int = None,
-        views: int = None,
-        forwards: int = None,
-        via_bot: "types.User" = None,
-        outgoing: bool = None,
-        matches: List[Match] = None,
-        command: List[str] = None,
-        video_chat_scheduled: "types.VideoChatScheduled" = None,
-        video_chat_started: "types.VideoChatStarted" = None,
-        video_chat_ended: "types.VideoChatEnded" = None,
-        video_chat_members_invited: "types.VideoChatMembersInvited" = None,
-        web_app_data: "types.WebAppData" = None,
-        reply_markup: Union[
-            "types.InlineKeyboardMarkup",
-            "types.ReplyKeyboardMarkup",
-            "types.ReplyKeyboardRemove",
-            "types.ForceReply"
-        ] = None,
-        reactions: List["types.Reaction"] = None
+            self,
+            *,
+            client: "pyrogram.Client" = None,
+            id: int,
+            from_user: "types.User" = None,
+            sender_chat: "types.Chat" = None,
+            date: datetime = None,
+            chat: "types.Chat" = None,
+            forward_from: "types.User" = None,
+            forward_sender_name: str = None,
+            forward_from_chat: "types.Chat" = None,
+            forward_from_message_id: int = None,
+            forward_signature: str = None,
+            forward_date: datetime = None,
+            reply_to_message_id: int = None,
+            reply_to_top_message_id: int = None,
+            reply_to_message: "Message" = None,
+            mentioned: bool = None,
+            empty: bool = None,
+            service: "enums.MessageServiceType" = None,
+            scheduled: bool = None,
+            from_scheduled: bool = None,
+            media: "enums.MessageMediaType" = None,
+            edit_date: datetime = None,
+            media_group_id: str = None,
+            author_signature: str = None,
+            has_protected_content: bool = None,
+            has_media_spoiler: bool = None,
+            text: Str = None,
+            entities: List["types.MessageEntity"] = None,
+            caption_entities: List["types.MessageEntity"] = None,
+            audio: "types.Audio" = None,
+            document: "types.Document" = None,
+            photo: "types.Photo" = None,
+            sticker: "types.Sticker" = None,
+            animation: "types.Animation" = None,
+            game: "types.Game" = None,
+            video: "types.Video" = None,
+            voice: "types.Voice" = None,
+            video_note: "types.VideoNote" = None,
+            caption: Str = None,
+            contact: "types.Contact" = None,
+            location: "types.Location" = None,
+            venue: "types.Venue" = None,
+            web_page: "types.WebPage" = None,
+            poll: "types.Poll" = None,
+            dice: "types.Dice" = None,
+            new_chat_members: List["types.User"] = None,
+            left_chat_member: "types.User" = None,
+            new_chat_title: str = None,
+            new_chat_photo: "types.Photo" = None,
+            delete_chat_photo: bool = None,
+            group_chat_created: bool = None,
+            supergroup_chat_created: bool = None,
+            channel_chat_created: bool = None,
+            migrate_to_chat_id: int = None,
+            migrate_from_chat_id: int = None,
+            pinned_message: "Message" = None,
+            game_high_score: int = None,
+            views: int = None,
+            forwards: int = None,
+            via_bot: "types.User" = None,
+            outgoing: bool = None,
+            matches: List[Match] = None,
+            command: List[str] = None,
+            is_topic_message: bool = None,
+            is_automatic_forward: bool = None,
+            sender_boost_count: int = None,
+            business_connection_id: str = None,
+            is_from_offline: bool = None,
+            link_preview_options: Optional["types.LinkPreviewOptions"] = None,
+            external_reply: Optional["types.ExternalReplyInfo"] = None,
+            quote: Optional["types.TextQuote"] = None,
+            reply_to_story: Optional["types.Story"] = None,
+            sender_business_bot: Optional["types.User"] = None,
+            message_auto_delete_timer_changed: Optional["types.MessageAutoDeleteTimerChanged"] = None,
+            invoice: Optional["types.Invoice"] = None,
+            successful_payment: Optional["types.SuccessfulPayment"] = None,
+            users_shared: Optional["types.UsersShared"] = None,
+            chat_shared: Optional["types.ChatShared"] = None,
+            connected_website: Optional["types.ConnectedWebsite"] = None,
+            write_access_allowed: Optional["types.WriteAccessAllowed"] = None,
+            passport_data: Optional["types.PassportData"] = None,
+            proximity_alert_triggered: Optional["types.ProximityAlertTriggered"] = None,
+            boost_added: Optional["types.BoostAdded"] = None,
+            forum_topic_created: Optional["types.ForumTopicCreated"] = None,
+            forum_topic_edited: Optional["types.ForumTopicEdited"] = None,
+            forum_topic_closed: Optional["types.ForumTopicClosed"] = None,
+            forum_topic_reopened: Optional["types.ForumTopicReopened"] = None,
+            general_forum_topic_hidden: Optional["types.GeneralForumTopicHidden"] = None,
+            general_forum_topic_unhidden: Optional["types.GeneralForumTopicUnhidden"] = None,
+            giveaway_created: Optional["types.GiveawayCreated"] = None,
+            giveaway: Optional["types.Giveaway"] = None,
+            giveaway_winners: Optional["types.GiveawayWinners"] = None,
+            giveaway_completed: Optional["types.GiveawayCompleted"] = None,
+            video_chat_participants_invited: Optional["types.VideoChatParticipantsInvited"] = None,
+            video_chat_scheduled: "types.VideoChatScheduled" = None,
+            video_chat_started: "types.VideoChatStarted" = None,
+            video_chat_ended: "types.VideoChatEnded" = None,
+            video_chat_members_invited: "types.VideoChatMembersInvited" = None,
+            web_app_data: "types.WebAppData" = None,
+            reply_markup: Union[
+                "types.InlineKeyboardMarkup",
+                "types.ReplyKeyboardMarkup",
+                "types.ReplyKeyboardRemove",
+                "types.ForceReply"
+            ] = None,
+            reactions: List["types.Reaction"] = None
     ):
         super().__init__(client)
 
@@ -451,6 +579,37 @@ class Message(Object, Update):
         self.matches = matches
         self.command = command
         self.reply_markup = reply_markup
+        self.is_topic_message = is_topic_message
+        self.is_automatic_forward = is_automatic_forward
+        self.sender_boost_count = sender_boost_count
+        self.business_connection_id = business_connection_id
+        self.is_from_offline = is_from_offline
+        self.link_preview_options = link_preview_options
+        self.external_reply = external_reply
+        self.quote = quote
+        self.reply_to_story = reply_to_story
+        self.sender_business_bot = sender_business_bot
+        self.message_auto_delete_timer_changed = message_auto_delete_timer_changed
+        self.invoice = invoice
+        self.successful_payment = successful_payment
+        self.users_shared = users_shared
+        self.chat_shared = chat_shared
+        self.connected_website = connected_website
+        self.write_access_allowed = write_access_allowed
+        self.passport_data = passport_data
+        self.proximity_alert_triggered = proximity_alert_triggered
+        self.boost_added = boost_added
+        self.forum_topic_created = forum_topic_created
+        self.forum_topic_edited = forum_topic_edited
+        self.forum_topic_closed = forum_topic_closed
+        self.forum_topic_reopened = forum_topic_reopened
+        self.general_forum_topic_hidden = general_forum_topic_hidden
+        self.general_forum_topic_unhidden = general_forum_topic_unhidden
+        self.giveaway_created = giveaway_created
+        self.giveaway = giveaway
+        self.giveaway_winners = giveaway_winners
+        self.giveaway_completed = giveaway_completed
+        self.video_chat_participants_invited = video_chat_participants_invited
         self.video_chat_scheduled = video_chat_scheduled
         self.video_chat_started = video_chat_started
         self.video_chat_ended = video_chat_ended
@@ -460,13 +619,15 @@ class Message(Object, Update):
 
     @staticmethod
     async def _parse(
-        client: "pyrogram.Client",
-        message: raw.base.Message,
-        users: dict,
-        chats: dict,
-        is_scheduled: bool = False,
-        replies: int = 1
+            client: "pyrogram.Client",
+            update: Any,
+            users: dict,
+            chats: dict,
+            is_scheduled: bool = False,
+            replies: int = 1
     ):
+        message = update.message
+
         if isinstance(message, raw.types.MessageEmpty):
             return Message(id=message.id, empty=True, client=client)
 
@@ -660,10 +821,14 @@ class Message(Object, Update):
             web_page = None
             poll = None
             dice = None
+            connection_id = None
 
             media = message.media
             media_type = None
             has_media_spoiler = None
+
+            if isinstance(update, (raw.types.UpdateBotNewBusinessMessage, raw.types.UpdateBotEditBusinessMessage)):
+                connection_id = update.connection_id
 
             if media:
                 if isinstance(media, raw.types.MessageMediaPhoto):
@@ -820,7 +985,8 @@ class Message(Object, Update):
                 outgoing=message.out,
                 reply_markup=reply_markup,
                 reactions=reactions,
-                client=client
+                client=client,
+                business_connection_id=connection_id
             )
 
             if message.reply_to:
@@ -851,8 +1017,8 @@ class Message(Object, Update):
     @property
     def link(self) -> str:
         if (
-            self.chat.type in (enums.ChatType.GROUP, enums.ChatType.SUPERGROUP, enums.ChatType.CHANNEL)
-            and self.chat.username
+                self.chat.type in (enums.ChatType.GROUP, enums.ChatType.SUPERGROUP, enums.ChatType.CHANNEL)
+                and self.chat.username
         ):
             return f"https://t.me/{self.chat.username}/{self.id}"
         else:
@@ -888,17 +1054,17 @@ class Message(Object, Update):
         )
 
     async def reply_text(
-        self,
-        text: str,
-        quote: bool = None,
-        parse_mode: Optional["enums.ParseMode"] = None,
-        entities: List["types.MessageEntity"] = None,
-        disable_web_page_preview: bool = None,
-        disable_notification: bool = None,
-        reply_to_message_id: int = None,
-        schedule_date: datetime = None,
-        protect_content: bool = None,
-        reply_markup=None
+            self,
+            text: str,
+            quote: bool = None,
+            parse_mode: Optional["enums.ParseMode"] = None,
+            entities: List["types.MessageEntity"] = None,
+            disable_web_page_preview: bool = None,
+            disable_notification: bool = None,
+            reply_to_message_id: int = None,
+            schedule_date: datetime = None,
+            protect_content: bool = None,
+            reply_markup=None
     ) -> "Message":
         """Bound method *reply_text* of :obj:`~pyrogram.types.Message`.
 
@@ -983,27 +1149,27 @@ class Message(Object, Update):
     reply = reply_text
 
     async def reply_animation(
-        self,
-        animation: Union[str, BinaryIO],
-        quote: bool = None,
-        caption: str = "",
-        parse_mode: Optional["enums.ParseMode"] = None,
-        caption_entities: List["types.MessageEntity"] = None,
-        has_spoiler: bool = None,
-        duration: int = 0,
-        width: int = 0,
-        height: int = 0,
-        thumb: str = None,
-        disable_notification: bool = None,
-        reply_markup: Union[
-            "types.InlineKeyboardMarkup",
-            "types.ReplyKeyboardMarkup",
-            "types.ReplyKeyboardRemove",
-            "types.ForceReply"
-        ] = None,
-        reply_to_message_id: int = None,
-        progress: Callable = None,
-        progress_args: tuple = ()
+            self,
+            animation: Union[str, BinaryIO],
+            quote: bool = None,
+            caption: str = "",
+            parse_mode: Optional["enums.ParseMode"] = None,
+            caption_entities: List["types.MessageEntity"] = None,
+            has_spoiler: bool = None,
+            duration: int = 0,
+            width: int = 0,
+            height: int = 0,
+            thumb: str = None,
+            disable_notification: bool = None,
+            reply_markup: Union[
+                "types.InlineKeyboardMarkup",
+                "types.ReplyKeyboardMarkup",
+                "types.ReplyKeyboardRemove",
+                "types.ForceReply"
+            ] = None,
+            reply_to_message_id: int = None,
+            progress: Callable = None,
+            progress_args: tuple = ()
     ) -> "Message":
         """Bound method *reply_animation* :obj:`~pyrogram.types.Message`.
 
@@ -1127,26 +1293,26 @@ class Message(Object, Update):
         )
 
     async def reply_audio(
-        self,
-        audio: Union[str, BinaryIO],
-        quote: bool = None,
-        caption: str = "",
-        parse_mode: Optional["enums.ParseMode"] = None,
-        caption_entities: List["types.MessageEntity"] = None,
-        duration: int = 0,
-        performer: str = None,
-        title: str = None,
-        thumb: str = None,
-        disable_notification: bool = None,
-        reply_to_message_id: int = None,
-        reply_markup: Union[
-            "types.InlineKeyboardMarkup",
-            "types.ReplyKeyboardMarkup",
-            "types.ReplyKeyboardRemove",
-            "types.ForceReply"
-        ] = None,
-        progress: Callable = None,
-        progress_args: tuple = ()
+            self,
+            audio: Union[str, BinaryIO],
+            quote: bool = None,
+            caption: str = "",
+            parse_mode: Optional["enums.ParseMode"] = None,
+            caption_entities: List["types.MessageEntity"] = None,
+            duration: int = 0,
+            performer: str = None,
+            title: str = None,
+            thumb: str = None,
+            disable_notification: bool = None,
+            reply_to_message_id: int = None,
+            reply_markup: Union[
+                "types.InlineKeyboardMarkup",
+                "types.ReplyKeyboardMarkup",
+                "types.ReplyKeyboardRemove",
+                "types.ForceReply"
+            ] = None,
+            progress: Callable = None,
+            progress_args: tuple = ()
     ) -> "Message":
         """Bound method *reply_audio* of :obj:`~pyrogram.types.Message`.
 
@@ -1266,20 +1432,20 @@ class Message(Object, Update):
         )
 
     async def reply_cached_media(
-        self,
-        file_id: str,
-        quote: bool = None,
-        caption: str = "",
-        parse_mode: Optional["enums.ParseMode"] = None,
-        caption_entities: List["types.MessageEntity"] = None,
-        disable_notification: bool = None,
-        reply_to_message_id: int = None,
-        reply_markup: Union[
-            "types.InlineKeyboardMarkup",
-            "types.ReplyKeyboardMarkup",
-            "types.ReplyKeyboardRemove",
-            "types.ForceReply"
-        ] = None
+            self,
+            file_id: str,
+            quote: bool = None,
+            caption: str = "",
+            parse_mode: Optional["enums.ParseMode"] = None,
+            caption_entities: List["types.MessageEntity"] = None,
+            disable_notification: bool = None,
+            reply_to_message_id: int = None,
+            reply_markup: Union[
+                "types.InlineKeyboardMarkup",
+                "types.ReplyKeyboardMarkup",
+                "types.ReplyKeyboardRemove",
+                "types.ForceReply"
+            ] = None
     ) -> "Message":
         """Bound method *reply_cached_media* of :obj:`~pyrogram.types.Message`.
 
@@ -1389,20 +1555,20 @@ class Message(Object, Update):
         )
 
     async def reply_contact(
-        self,
-        phone_number: str,
-        first_name: str,
-        quote: bool = None,
-        last_name: str = "",
-        vcard: str = "",
-        disable_notification: bool = None,
-        reply_to_message_id: int = None,
-        reply_markup: Union[
-            "types.InlineKeyboardMarkup",
-            "types.ReplyKeyboardMarkup",
-            "types.ReplyKeyboardRemove",
-            "types.ForceReply"
-        ] = None
+            self,
+            phone_number: str,
+            first_name: str,
+            quote: bool = None,
+            last_name: str = "",
+            vcard: str = "",
+            disable_notification: bool = None,
+            reply_to_message_id: int = None,
+            reply_markup: Union[
+                "types.InlineKeyboardMarkup",
+                "types.ReplyKeyboardMarkup",
+                "types.ReplyKeyboardRemove",
+                "types.ForceReply"
+            ] = None
     ) -> "Message":
         """Bound method *reply_contact* of :obj:`~pyrogram.types.Message`.
 
@@ -1474,26 +1640,26 @@ class Message(Object, Update):
         )
 
     async def reply_document(
-        self,
-        document: Union[str, BinaryIO],
-        quote: bool = None,
-        thumb: str = None,
-        caption: str = "",
-        parse_mode: Optional["enums.ParseMode"] = None,
-        caption_entities: List["types.MessageEntity"] = None,
-        file_name: str = None,
-        force_document: bool = None,
-        disable_notification: bool = None,
-        reply_to_message_id: int = None,
-        schedule_date: datetime = None,
-        reply_markup: Union[
-            "types.InlineKeyboardMarkup",
-            "types.ReplyKeyboardMarkup",
-            "types.ReplyKeyboardRemove",
-            "types.ForceReply"
-        ] = None,
-        progress: Callable = None,
-        progress_args: tuple = ()
+            self,
+            document: Union[str, BinaryIO],
+            quote: bool = None,
+            thumb: str = None,
+            caption: str = "",
+            parse_mode: Optional["enums.ParseMode"] = None,
+            caption_entities: List["types.MessageEntity"] = None,
+            file_name: str = None,
+            force_document: bool = None,
+            disable_notification: bool = None,
+            reply_to_message_id: int = None,
+            schedule_date: datetime = None,
+            reply_markup: Union[
+                "types.InlineKeyboardMarkup",
+                "types.ReplyKeyboardMarkup",
+                "types.ReplyKeyboardRemove",
+                "types.ForceReply"
+            ] = None,
+            progress: Callable = None,
+            progress_args: tuple = ()
     ) -> "Message":
         """Bound method *reply_document* of :obj:`~pyrogram.types.Message`.
 
@@ -1616,17 +1782,17 @@ class Message(Object, Update):
         )
 
     async def reply_game(
-        self,
-        game_short_name: str,
-        quote: bool = None,
-        disable_notification: bool = None,
-        reply_to_message_id: int = None,
-        reply_markup: Union[
-            "types.InlineKeyboardMarkup",
-            "types.ReplyKeyboardMarkup",
-            "types.ReplyKeyboardRemove",
-            "types.ForceReply"
-        ] = None
+            self,
+            game_short_name: str,
+            quote: bool = None,
+            disable_notification: bool = None,
+            reply_to_message_id: int = None,
+            reply_markup: Union[
+                "types.InlineKeyboardMarkup",
+                "types.ReplyKeyboardMarkup",
+                "types.ReplyKeyboardRemove",
+                "types.ForceReply"
+            ] = None
     ) -> "Message":
         """Bound method *reply_game* of :obj:`~pyrogram.types.Message`.
 
@@ -1685,12 +1851,12 @@ class Message(Object, Update):
         )
 
     async def reply_inline_bot_result(
-        self,
-        query_id: int,
-        result_id: str,
-        quote: bool = None,
-        disable_notification: bool = None,
-        reply_to_message_id: int = None
+            self,
+            query_id: int,
+            result_id: str,
+            quote: bool = None,
+            disable_notification: bool = None,
+            reply_to_message_id: int = None
     ) -> "Message":
         """Bound method *reply_inline_bot_result* of :obj:`~pyrogram.types.Message`.
 
@@ -1749,18 +1915,18 @@ class Message(Object, Update):
         )
 
     async def reply_location(
-        self,
-        latitude: float,
-        longitude: float,
-        quote: bool = None,
-        disable_notification: bool = None,
-        reply_to_message_id: int = None,
-        reply_markup: Union[
-            "types.InlineKeyboardMarkup",
-            "types.ReplyKeyboardMarkup",
-            "types.ReplyKeyboardRemove",
-            "types.ForceReply"
-        ] = None
+            self,
+            latitude: float,
+            longitude: float,
+            quote: bool = None,
+            disable_notification: bool = None,
+            reply_to_message_id: int = None,
+            reply_markup: Union[
+                "types.InlineKeyboardMarkup",
+                "types.ReplyKeyboardMarkup",
+                "types.ReplyKeyboardRemove",
+                "types.ForceReply"
+            ] = None
     ) -> "Message":
         """Bound method *reply_location* of :obj:`~pyrogram.types.Message`.
 
@@ -1824,11 +1990,11 @@ class Message(Object, Update):
         )
 
     async def reply_media_group(
-        self,
-        media: List[Union["types.InputMediaPhoto", "types.InputMediaVideo"]],
-        quote: bool = None,
-        disable_notification: bool = None,
-        reply_to_message_id: int = None
+            self,
+            media: List[Union["types.InputMediaPhoto", "types.InputMediaVideo"]],
+            quote: bool = None,
+            disable_notification: bool = None,
+            reply_to_message_id: int = None
     ) -> List["types.Message"]:
         """Bound method *reply_media_group* of :obj:`~pyrogram.types.Message`.
 
@@ -1885,24 +2051,24 @@ class Message(Object, Update):
         )
 
     async def reply_photo(
-        self,
-        photo: Union[str, BinaryIO],
-        quote: bool = None,
-        caption: str = "",
-        parse_mode: Optional["enums.ParseMode"] = None,
-        caption_entities: List["types.MessageEntity"] = None,
-        has_spoiler: bool = None,
-        ttl_seconds: int = None,
-        disable_notification: bool = None,
-        reply_to_message_id: int = None,
-        reply_markup: Union[
-            "types.InlineKeyboardMarkup",
-            "types.ReplyKeyboardMarkup",
-            "types.ReplyKeyboardRemove",
-            "types.ForceReply"
-        ] = None,
-        progress: Callable = None,
-        progress_args: tuple = ()
+            self,
+            photo: Union[str, BinaryIO],
+            quote: bool = None,
+            caption: str = "",
+            parse_mode: Optional["enums.ParseMode"] = None,
+            caption_entities: List["types.MessageEntity"] = None,
+            has_spoiler: bool = None,
+            ttl_seconds: int = None,
+            disable_notification: bool = None,
+            reply_to_message_id: int = None,
+            reply_markup: Union[
+                "types.InlineKeyboardMarkup",
+                "types.ReplyKeyboardMarkup",
+                "types.ReplyKeyboardRemove",
+                "types.ForceReply"
+            ] = None,
+            progress: Callable = None,
+            progress_args: tuple = ()
     ) -> "Message":
         """Bound method *reply_photo* of :obj:`~pyrogram.types.Message`.
 
@@ -2013,30 +2179,30 @@ class Message(Object, Update):
         )
 
     async def reply_poll(
-        self,
-        question: str,
-        options: List[str],
-        is_anonymous: bool = True,
-        type: "enums.PollType" = enums.PollType.REGULAR,
-        allows_multiple_answers: bool = None,
-        correct_option_id: int = None,
-        explanation: str = None,
-        explanation_parse_mode: "enums.ParseMode" = None,
-        explanation_entities: List["types.MessageEntity"] = None,
-        open_period: int = None,
-        close_date: datetime = None,
-        is_closed: bool = None,
-        quote: bool = None,
-        disable_notification: bool = None,
-        protect_content: bool = None,
-        reply_to_message_id: int = None,
-        schedule_date: datetime = None,
-        reply_markup: Union[
-            "types.InlineKeyboardMarkup",
-            "types.ReplyKeyboardMarkup",
-            "types.ReplyKeyboardRemove",
-            "types.ForceReply"
-        ] = None
+            self,
+            question: str,
+            options: List[str],
+            is_anonymous: bool = True,
+            type: "enums.PollType" = enums.PollType.REGULAR,
+            allows_multiple_answers: bool = None,
+            correct_option_id: int = None,
+            explanation: str = None,
+            explanation_parse_mode: "enums.ParseMode" = None,
+            explanation_entities: List["types.MessageEntity"] = None,
+            open_period: int = None,
+            close_date: datetime = None,
+            is_closed: bool = None,
+            quote: bool = None,
+            disable_notification: bool = None,
+            protect_content: bool = None,
+            reply_to_message_id: int = None,
+            schedule_date: datetime = None,
+            reply_markup: Union[
+                "types.InlineKeyboardMarkup",
+                "types.ReplyKeyboardMarkup",
+                "types.ReplyKeyboardRemove",
+                "types.ForceReply"
+            ] = None
     ) -> "Message":
         """Bound method *reply_poll* of :obj:`~pyrogram.types.Message`.
 
@@ -2158,19 +2324,19 @@ class Message(Object, Update):
         )
 
     async def reply_sticker(
-        self,
-        sticker: Union[str, BinaryIO],
-        quote: bool = None,
-        disable_notification: bool = None,
-        reply_to_message_id: int = None,
-        reply_markup: Union[
-            "types.InlineKeyboardMarkup",
-            "types.ReplyKeyboardMarkup",
-            "types.ReplyKeyboardRemove",
-            "types.ForceReply"
-        ] = None,
-        progress: Callable = None,
-        progress_args: tuple = ()
+            self,
+            sticker: Union[str, BinaryIO],
+            quote: bool = None,
+            disable_notification: bool = None,
+            reply_to_message_id: int = None,
+            reply_markup: Union[
+                "types.InlineKeyboardMarkup",
+                "types.ReplyKeyboardMarkup",
+                "types.ReplyKeyboardRemove",
+                "types.ForceReply"
+            ] = None,
+            progress: Callable = None,
+            progress_args: tuple = ()
     ) -> "Message":
         """Bound method *reply_sticker* of :obj:`~pyrogram.types.Message`.
 
@@ -2258,22 +2424,22 @@ class Message(Object, Update):
         )
 
     async def reply_venue(
-        self,
-        latitude: float,
-        longitude: float,
-        title: str,
-        address: str,
-        quote: bool = None,
-        foursquare_id: str = "",
-        foursquare_type: str = "",
-        disable_notification: bool = None,
-        reply_to_message_id: int = None,
-        reply_markup: Union[
-            "types.InlineKeyboardMarkup",
-            "types.ReplyKeyboardMarkup",
-            "types.ReplyKeyboardRemove",
-            "types.ForceReply"
-        ] = None
+            self,
+            latitude: float,
+            longitude: float,
+            title: str,
+            address: str,
+            quote: bool = None,
+            foursquare_id: str = "",
+            foursquare_type: str = "",
+            disable_notification: bool = None,
+            reply_to_message_id: int = None,
+            reply_markup: Union[
+                "types.InlineKeyboardMarkup",
+                "types.ReplyKeyboardMarkup",
+                "types.ReplyKeyboardRemove",
+                "types.ForceReply"
+            ] = None
     ) -> "Message":
         """Bound method *reply_venue* of :obj:`~pyrogram.types.Message`.
 
@@ -2356,29 +2522,29 @@ class Message(Object, Update):
         )
 
     async def reply_video(
-        self,
-        video: Union[str, BinaryIO],
-        quote: bool = None,
-        caption: str = "",
-        parse_mode: Optional["enums.ParseMode"] = None,
-        caption_entities: List["types.MessageEntity"] = None,
-        has_spoiler: bool = None,
-        ttl_seconds: int = None,
-        duration: int = 0,
-        width: int = 0,
-        height: int = 0,
-        thumb: str = None,
-        supports_streaming: bool = True,
-        disable_notification: bool = None,
-        reply_to_message_id: int = None,
-        reply_markup: Union[
-            "types.InlineKeyboardMarkup",
-            "types.ReplyKeyboardMarkup",
-            "types.ReplyKeyboardRemove",
-            "types.ForceReply"
-        ] = None,
-        progress: Callable = None,
-        progress_args: tuple = ()
+            self,
+            video: Union[str, BinaryIO],
+            quote: bool = None,
+            caption: str = "",
+            parse_mode: Optional["enums.ParseMode"] = None,
+            caption_entities: List["types.MessageEntity"] = None,
+            has_spoiler: bool = None,
+            ttl_seconds: int = None,
+            duration: int = 0,
+            width: int = 0,
+            height: int = 0,
+            thumb: str = None,
+            supports_streaming: bool = True,
+            disable_notification: bool = None,
+            reply_to_message_id: int = None,
+            reply_markup: Union[
+                "types.InlineKeyboardMarkup",
+                "types.ReplyKeyboardMarkup",
+                "types.ReplyKeyboardRemove",
+                "types.ForceReply"
+            ] = None,
+            progress: Callable = None,
+            progress_args: tuple = ()
     ) -> "Message":
         """Bound method *reply_video* of :obj:`~pyrogram.types.Message`.
 
@@ -2512,22 +2678,22 @@ class Message(Object, Update):
         )
 
     async def reply_video_note(
-        self,
-        video_note: Union[str, BinaryIO],
-        quote: bool = None,
-        duration: int = 0,
-        length: int = 1,
-        thumb: str = None,
-        disable_notification: bool = None,
-        reply_to_message_id: int = None,
-        reply_markup: Union[
-            "types.InlineKeyboardMarkup",
-            "types.ReplyKeyboardMarkup",
-            "types.ReplyKeyboardRemove",
-            "types.ForceReply"
-        ] = None,
-        progress: Callable = None,
-        progress_args: tuple = ()
+            self,
+            video_note: Union[str, BinaryIO],
+            quote: bool = None,
+            duration: int = 0,
+            length: int = 1,
+            thumb: str = None,
+            disable_notification: bool = None,
+            reply_to_message_id: int = None,
+            reply_markup: Union[
+                "types.InlineKeyboardMarkup",
+                "types.ReplyKeyboardMarkup",
+                "types.ReplyKeyboardRemove",
+                "types.ForceReply"
+            ] = None,
+            progress: Callable = None,
+            progress_args: tuple = ()
     ) -> "Message":
         """Bound method *reply_video_note* of :obj:`~pyrogram.types.Message`.
 
@@ -2630,23 +2796,23 @@ class Message(Object, Update):
         )
 
     async def reply_voice(
-        self,
-        voice: Union[str, BinaryIO],
-        quote: bool = None,
-        caption: str = "",
-        parse_mode: Optional["enums.ParseMode"] = None,
-        caption_entities: List["types.MessageEntity"] = None,
-        duration: int = 0,
-        disable_notification: bool = None,
-        reply_to_message_id: int = None,
-        reply_markup: Union[
-            "types.InlineKeyboardMarkup",
-            "types.ReplyKeyboardMarkup",
-            "types.ReplyKeyboardRemove",
-            "types.ForceReply"
-        ] = None,
-        progress: Callable = None,
-        progress_args: tuple = ()
+            self,
+            voice: Union[str, BinaryIO],
+            quote: bool = None,
+            caption: str = "",
+            parse_mode: Optional["enums.ParseMode"] = None,
+            caption_entities: List["types.MessageEntity"] = None,
+            duration: int = 0,
+            disable_notification: bool = None,
+            reply_to_message_id: int = None,
+            reply_markup: Union[
+                "types.InlineKeyboardMarkup",
+                "types.ReplyKeyboardMarkup",
+                "types.ReplyKeyboardRemove",
+                "types.ForceReply"
+            ] = None,
+            progress: Callable = None,
+            progress_args: tuple = ()
     ) -> "Message":
         """Bound method *reply_voice* of :obj:`~pyrogram.types.Message`.
 
@@ -2751,12 +2917,12 @@ class Message(Object, Update):
         )
 
     async def edit_text(
-        self,
-        text: str,
-        parse_mode: Optional["enums.ParseMode"] = None,
-        entities: List["types.MessageEntity"] = None,
-        disable_web_page_preview: bool = None,
-        reply_markup: "types.InlineKeyboardMarkup" = None
+            self,
+            text: str,
+            parse_mode: Optional["enums.ParseMode"] = None,
+            entities: List["types.MessageEntity"] = None,
+            disable_web_page_preview: bool = None,
+            reply_markup: "types.InlineKeyboardMarkup" = None
     ) -> "Message":
         """Bound method *edit_text* of :obj:`~pyrogram.types.Message`.
 
@@ -2813,11 +2979,11 @@ class Message(Object, Update):
     edit = edit_text
 
     async def edit_caption(
-        self,
-        caption: str,
-        parse_mode: Optional["enums.ParseMode"] = None,
-        caption_entities: List["types.MessageEntity"] = None,
-        reply_markup: "types.InlineKeyboardMarkup" = None
+            self,
+            caption: str,
+            parse_mode: Optional["enums.ParseMode"] = None,
+            caption_entities: List["types.MessageEntity"] = None,
+            reply_markup: "types.InlineKeyboardMarkup" = None
     ) -> "Message":
         """Bound method *edit_caption* of :obj:`~pyrogram.types.Message`.
 
@@ -2866,9 +3032,9 @@ class Message(Object, Update):
         )
 
     async def edit_media(
-        self,
-        media: "types.InputMedia",
-        reply_markup: "types.InlineKeyboardMarkup" = None
+            self,
+            media: "types.InputMedia",
+            reply_markup: "types.InlineKeyboardMarkup" = None
     ) -> "Message":
         """Bound method *edit_media* of :obj:`~pyrogram.types.Message`.
 
@@ -2943,10 +3109,10 @@ class Message(Object, Update):
         )
 
     async def forward(
-        self,
-        chat_id: Union[int, str],
-        disable_notification: bool = None,
-        schedule_date: datetime = None
+            self,
+            chat_id: Union[int, str],
+            disable_notification: bool = None,
+            schedule_date: datetime = None
     ) -> Union["types.Message", List["types.Message"]]:
         """Bound method *forward* of :obj:`~pyrogram.types.Message`.
 
@@ -2993,21 +3159,21 @@ class Message(Object, Update):
         )
 
     async def copy(
-        self,
-        chat_id: Union[int, str],
-        caption: str = None,
-        parse_mode: Optional["enums.ParseMode"] = None,
-        caption_entities: List["types.MessageEntity"] = None,
-        disable_notification: bool = None,
-        reply_to_message_id: int = None,
-        schedule_date: datetime = None,
-        protect_content: bool = None,
-        reply_markup: Union[
-            "types.InlineKeyboardMarkup",
-            "types.ReplyKeyboardMarkup",
-            "types.ReplyKeyboardRemove",
-            "types.ForceReply"
-        ] = object
+            self,
+            chat_id: Union[int, str],
+            caption: str = None,
+            parse_mode: Optional["enums.ParseMode"] = None,
+            caption_entities: List["types.MessageEntity"] = None,
+            disable_notification: bool = None,
+            reply_to_message_id: int = None,
+            schedule_date: datetime = None,
+            protect_content: bool = None,
+            reply_markup: Union[
+                "types.InlineKeyboardMarkup",
+                "types.ReplyKeyboardMarkup",
+                "types.ReplyKeyboardRemove",
+                "types.ForceReply"
+            ] = object
     ) -> Union["types.Message", List["types.Message"]]:
         """Bound method *copy* of :obj:`~pyrogram.types.Message`.
 
@@ -3379,7 +3545,7 @@ class Message(Object, Update):
         )
 
     async def retract_vote(
-        self,
+            self,
     ) -> "types.Poll":
         """Bound method *retract_vote* of :obj:`~pyrogram.types.Message`.
 
@@ -3410,12 +3576,12 @@ class Message(Object, Update):
         )
 
     async def download(
-        self,
-        file_name: str = "",
-        in_memory: bool = False,
-        block: bool = True,
-        progress: Callable = None,
-        progress_args: tuple = ()
+            self,
+            file_name: str = "",
+            in_memory: bool = False,
+            block: bool = True,
+            progress: Callable = None,
+            progress_args: tuple = ()
     ) -> str:
         """Bound method *download* of :obj:`~pyrogram.types.Message`.
 
@@ -3485,8 +3651,8 @@ class Message(Object, Update):
         )
 
     async def vote(
-        self,
-        option: int,
+            self,
+            option: int,
     ) -> "types.Poll":
         """Bound method *vote* of :obj:`~pyrogram.types.Message`.
 
