@@ -22,39 +22,10 @@ import logging
 from collections import OrderedDict
 
 import pyrogram
-from pyrogram import utils
-from pyrogram.handlers import *
-
-from pyrogram.raw.types import (
-    UpdateNewMessage,
-    UpdateNewChannelMessage,
-    UpdateNewScheduledMessage,
-    UpdateEditMessage,
-    UpdateEditChannelMessage,
-    UpdateDeleteMessages,
-    UpdateDeleteChannelMessages,
-    UpdateBotCallbackQuery,
-    UpdateInlineBotCallbackQuery,
-    UpdateUserStatus,
-    UpdateBotInlineQuery,
-    UpdateMessagePoll,
-    UpdateBotInlineSend,
-    UpdateChatParticipant,
-    UpdateChannelParticipant,
-    UpdateBotChatInviteRequester,
-    UpdateBotMessageReaction,
-    UpdateMessageReactions,
-    UpdateBotPrecheckoutQuery,
-    UpdateBotBusinessConnect,
-    UpdateBotNewBusinessMessage,
-    UpdateBotEditBusinessMessage,
-    UpdateBotDeleteBusinessMessage
-)
-
-from typing import Callable
+from pyrogram.handlers import RawUpdateHandler
+from pyrogram.updates import Parser, updates
 
 log = logging.getLogger(__name__)
-
 
 class Handler:
     def __init__(self, parser, handler):
@@ -79,83 +50,12 @@ class Dispatcher:
 
         self.updates_queue = asyncio.Queue()
         self.groups = OrderedDict()
+        self.parser = Parser(client).parser
 
-        self.update_parsers = {
-            UpdateNewMessage: NewMessageHandler,
-            UpdateNewChannelMessage: NewChannelMessageHandler,
-            UpdateNewScheduledMessage: NewScheduledMessageHandler,
-            UpdateEditMessage: EditMessageHandler,
-            UpdateEditChannelMessage: EditChannelMessageHandler,
-            UpdateBotNewBusinessMessage: BotNewBusinessMessageHandler,
-            UpdateBotEditBusinessMessage: BotEditBusinessMessageHandler,
-            UpdateDeleteMessages: DeleteMessagesHandler,
-            UpdateDeleteChannelMessages: DeleteChannelMessagesHandler,
-            UpdateBotCallbackQuery: BotCallbackQueryHandler,
-            UpdateInlineBotCallbackQuery: InlineBotCallbackQueryHandler,
-            UpdateUserStatus: UserStatusHandler,
-            UpdateBotInlineQuery: BotInlineQueryHandler,
-            UpdateMessagePoll: MessagePollHandler,
-            UpdateBotInlineSend: BotInlineSendHandler,
-            UpdateChatParticipant: ChatParticipantHandler,
-            UpdateChannelParticipant: ChannelParticipantHandler,
-            UpdateBotChatInviteRequester: BotChatInviteRequesterHandler,
-            UpdateBotMessageReaction: BotMessageReactionHandler,
-            UpdateMessageReactions: MessageReactionsHandler,
-            UpdateBotBusinessConnect: BotBusinessConnectHandler,
-            UpdateBotDeleteBusinessMessage: BotDeleteBusinessMessageHandler
-
-        }
-
+        self.update_parsers = updates
         self.update_parsers = {key: value for key, value in self.update_parsers.items()}
 
-    async def parser(self, update, users, chats):
 
-        if isinstance(update, (
-                UpdateNewMessage, UpdateNewChannelMessage, UpdateNewScheduledMessage, UpdateEditMessage,
-                UpdateEditChannelMessage, UpdateBotNewBusinessMessage, UpdateBotEditBusinessMessage)):
-            return await pyrogram.types.Message._parse(
-                self.client,
-                update,
-                users,
-                chats,
-                is_scheduled=isinstance(update, UpdateNewScheduledMessage),
-            )
-
-        if isinstance(update, (UpdateDeleteMessages, UpdateDeleteChannelMessages)):
-            return utils.parse_deleted_messages(self.client, update)
-
-        if isinstance(update, (UpdateBotCallbackQuery, UpdateInlineBotCallbackQuery)):
-            return await pyrogram.types.CallbackQuery._parse(self.client, update, users)
-
-        if isinstance(update, UpdateUserStatus):
-            return pyrogram.types.User._parse_user_status(self.client, update)
-
-        if isinstance(update, UpdateBotInlineQuery):
-            return pyrogram.types.InlineQuery._parse(self.client, update, users),
-
-        if isinstance(update, UpdateMessagePoll):
-            return pyrogram.types.Poll._parse_update(self.client, update)
-
-        if isinstance(update, UpdateBotInlineSend):
-            return pyrogram.types.ChosenInlineResult._parse(self.client, update, users)
-
-        if isinstance(update, (UpdateChatParticipant, UpdateChannelParticipant)):
-            return pyrogram.types.ChatMemberUpdated._parse(self.client, update, users, chats)
-
-        if isinstance(update, UpdateBotChatInviteRequester):
-            return pyrogram.types.ChatJoinRequest._parse(self.client, update, users, chats)
-
-        if isinstance(update, UpdateBotMessageReaction):
-            return pyrogram.types.MessageReactionUpdated._parse(self.client, update, users, chats)
-
-        if isinstance(update, UpdateMessageReactions):
-            return pyrogram.types.MessageReactionCountUpdated._parse(self.client, update, users, chats)
-
-        if isinstance(update, UpdateBotBusinessConnect):
-            return pyrogram.types.BusinessConnection._parse(self.client, update, users, chats)
-
-        if isinstance(update, UpdateBotDeleteBusinessMessage):
-            return pyrogram.types.BusinessMessagesDeleted._parse(self.client, update, users, chats)
 
     async def start(self):
         if not self.client.no_updates:
