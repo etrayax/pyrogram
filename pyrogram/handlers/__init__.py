@@ -30,3 +30,7 @@ from .raw_update_handler import RawUpdateHandler
 from .user_status_handler import UserStatusHandler
 from .message_reaction import MessageReactionHandler
 from .message_reaction_count import MessageReactionCountHandler
+from .business_message import BusinessMessageHandler
+from .business_connection import BusinessConnectionHandler
+from .deleted_business_messages import DeleteBusinessMessagesHandler
+from .edited_business_message import EditedBusinessMessageHandler
