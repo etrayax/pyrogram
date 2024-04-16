@@ -28,6 +28,8 @@ from .on_message import OnMessage
 from .on_poll import OnPoll
 from .on_raw_update import OnRawUpdate
 from .on_user_status import OnUserStatus
+from .on_message_reaction import OnMessageReaction
+from .on_message_reaction_count import OnMessageReactionCount
 
 
 class Decorators(
@@ -42,6 +44,8 @@ class Decorators(
     OnPoll,
     OnChosenInlineResult,
     OnChatMemberUpdated,
-    OnChatJoinRequest
+    OnChatJoinRequest,
+    OnMessageReaction,
+    OnMessageReactionCount
 ):
     pass
