@@ -159,10 +159,28 @@ class Chat(Object):
         members_count: int = None,
         restrictions: List["types.Restriction"] = None,
         permissions: "types.ChatPermissions" = None,
+        admin_rights: "types.ChatAdminRights" = None,
         distance: int = None,
         linked_chat: "types.Chat" = None,
         send_as_chat: "types.Chat" = None,
-        available_reactions: Optional["types.ChatReactions"] = None
+        available_reactions: Optional["types.ChatReactions"] = None,
+        left: bool = None,
+        broadcast: bool = None,
+        signatures: bool = None,
+        min_: bool = None,
+        has_link: bool = None,
+        has_geo: bool = None,
+        slowmode_enabled: bool = None,
+        call_active: bool = None,
+        call_not_empty: bool = None,
+        gigagroup: bool = None,
+        join_to_send: bool = None,
+        join_request: bool = None,
+        forum: bool = None,
+        stories_hidden: bool = None,
+        stories_hidden_min: bool = None,
+        stories_unavailable: bool = None,
+        usernames: Optional[List["raw.base.Username"]] = None
     ):
         super().__init__(client)
 
@@ -190,10 +208,28 @@ class Chat(Object):
         self.members_count = members_count
         self.restrictions = restrictions
         self.permissions = permissions
+        self.admin_rights = admin_rights
         self.distance = distance
         self.linked_chat = linked_chat
         self.send_as_chat = send_as_chat
         self.available_reactions = available_reactions
+        self.left = left
+        self.broadcast = broadcast
+        self.signatures = signatures
+        self.min = min_
+        self.has_link = has_link
+        self.has_geo = has_geo
+        self.slowmode_enabled = slowmode_enabled
+        self.call_active = call_active
+        self.call_not_empty = call_not_empty
+        self.gigagroup = gigagroup
+        self.join_to_send = join_to_send
+        self.join_request = join_request
+        self.forum = forum
+        self.stories_hidden = stories_hidden
+        self.stories_hidden_min = stories_hidden_min
+        self.stories_unavailable = stories_unavailable
+        self.usernames = usernames
 
     @staticmethod
     def _parse_user_chat(client, user: raw.types.User) -> "Chat":
@@ -213,6 +249,10 @@ class Chat(Object):
             photo=types.ChatPhoto._parse(client, user.photo, peer_id, user.access_hash),
             restrictions=types.List([types.Restriction._parse(r) for r in user.restriction_reason]) or None,
             dc_id=getattr(getattr(user, "photo", None), "dc_id", None),
+            min_=user.min,
+            stories_hidden=user.stories_hidden,
+            stories_unavailable=user.stories_unavailable,
+            usernames=user.usernames,
             client=client
         )
 
@@ -227,9 +267,13 @@ class Chat(Object):
             is_creator=getattr(chat, "creator", None),
             photo=types.ChatPhoto._parse(client, getattr(chat, "photo", None), peer_id, 0),
             permissions=types.ChatPermissions._parse(getattr(chat, "default_banned_rights", None)),
+            admin_rights=types.ChatAdminRights._parse(getattr(chat, "admin_rights", None)),
             members_count=getattr(chat, "participants_count", None),
             dc_id=getattr(getattr(chat, "photo", None), "dc_id", None),
             has_protected_content=getattr(chat, "noforwards", None),
+            left=chat.left,
+            call_active=chat.call_active,
+            call_not_empty=chat.call_not_empty,
             client=client
         )
 
@@ -252,9 +296,27 @@ class Chat(Object):
                                          getattr(channel, "access_hash", 0)),
             restrictions=types.List([types.Restriction._parse(r) for r in restriction_reason]) or None,
             permissions=types.ChatPermissions._parse(getattr(channel, "default_banned_rights", None)),
+            admin_rights=types.ChatAdminRights._parse(getattr(channel, "admin_rights", None)),
             members_count=getattr(channel, "participants_count", None),
             dc_id=getattr(getattr(channel, "photo", None), "dc_id", None),
             has_protected_content=getattr(channel, "noforwards", None),
+            left=channel.left,
+            broadcast=channel.broadcast,
+            signatures=channel.signatures,
+            min_=channel.min,
+            has_link=channel.has_link,
+            has_geo=channel.has_geo,
+            slowmode_enabled=channel.slowmode_enabled,
+            call_active=channel.call_active,
+            call_not_empty=channel.call_not_empty,
+            gigagroup=channel.gigagroup,
+            join_to_send=channel.join_to_send,
+            join_request=channel.join_request,
+            forum=channel.forum,
+            stories_hidden=channel.stories_hidden,
+            stories_hidden_min=channel.stories_hidden_min,
+            stories_unavailable=channel.stories_unavailable,
+            usernames=channel.usernames,
             client=client
         )
 

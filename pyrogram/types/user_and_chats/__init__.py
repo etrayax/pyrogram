@@ -39,6 +39,8 @@ from .video_chat_ended import VideoChatEnded
 from .video_chat_members_invited import VideoChatMembersInvited
 from .video_chat_scheduled import VideoChatScheduled
 from .video_chat_started import VideoChatStarted
+from .peer_color import PeerColor
+from .chat_admin_rights import ChatAdminRights
 
 __all__ = [
     "Chat",
@@ -63,5 +65,7 @@ __all__ = [
     "ChatPrivileges",
     "ChatJoiner",
     "EmojiStatus",
-    "ChatReactions"
+    "ChatReactions",
+    "PeerColor",
+    "ChatAdminRights"
 ]

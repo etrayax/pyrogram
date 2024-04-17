@@ -145,6 +145,8 @@ class User(Object, Update):
             You can use ``user.mention()`` to mention the user using their first name (styled using html), or
             ``user.mention("another name")`` for a custom name. To choose a different style
             ("html" or "md"/"markdown") use ``user.mention(style="md")``.
+
+        NOTE: New parameters have been added, but I'm not in the mood to write description.
     """
 
     def __init__(
@@ -163,18 +165,34 @@ class User(Object, Update):
         is_fake: bool = None,
         is_support: bool = None,
         is_premium: bool = None,
+        bot_chat_history: bool = None,
+        bot_nochats: bool = None,
+        min_: bool = None,
+        bot_inline_geo: bool = None,
+        apply_min_photo: bool = None,
+        bot_attach_menu: bool = None,
+        attach_menu_enabled: bool = None,
+        bot_can_edit: bool = None,
+        close_friend: bool = None,
+        stories_hidden: bool = None,
+        stories_unavailable: bool = None,
+        contact_require_premium: bool = None,
+        bot_business: bool = None,
         first_name: str = None,
         last_name: str = None,
         status: "enums.UserStatus" = None,
         last_online_date: datetime = None,
         next_offline_date: datetime = None,
         username: str = None,
+        usernames: Optional[List["raw.base.Username"]] = None,
         language_code: str = None,
         emoji_status: Optional["types.EmojiStatus"] = None,
+        color: Optional["types.PeerColor"] = None,
+        profile_color: Optional["types.PeerColor"] = None,
         dc_id: int = None,
         phone_number: str = None,
         photo: "types.ChatPhoto" = None,
-        restrictions: List["types.Restriction"] = None
+        restrictions: List["types.Restriction"] = None,
     ):
         super().__init__(client)
 
@@ -196,12 +214,28 @@ class User(Object, Update):
         self.last_online_date = last_online_date
         self.next_offline_date = next_offline_date
         self.username = username
+        self.usernames = usernames
         self.language_code = language_code
         self.emoji_status = emoji_status
+        self.color = color
+        self.profile_color = profile_color
         self.dc_id = dc_id
         self.phone_number = phone_number
         self.photo = photo
         self.restrictions = restrictions
+        self.bot_chat_history = bot_chat_history
+        self.bot_nochats = bot_nochats
+        self.min = min_
+        self.bot_inline_geo = bot_inline_geo
+        self.apply_min_photo = apply_min_photo
+        self.bot_attach_menu = bot_attach_menu
+        self.attach_menu_enabled = attach_menu_enabled
+        self.bot_can_edit = bot_can_edit
+        self.close_friend = close_friend
+        self.stories_hidden = stories_hidden
+        self.stories_unavailable = stories_unavailable
+        self.contact_require_premium = contact_require_premium
+        self.bot_business = bot_business
 
     @property
     def mention(self):
@@ -235,10 +269,26 @@ class User(Object, Update):
             username=user.username,
             language_code=user.lang_code,
             emoji_status=types.EmojiStatus._parse(client, user.emoji_status),
+            color=types.PeerColor._parse(client, user.color),
+            profile_color=types.PeerColor._parse(client, user.profile_color),
             dc_id=getattr(user.photo, "dc_id", None),
             phone_number=user.phone,
             photo=types.ChatPhoto._parse(client, user.photo, user.id, user.access_hash),
             restrictions=types.List([types.Restriction._parse(r) for r in user.restriction_reason]) or None,
+            bot_chat_history=user.bot_chat_history,
+            bot_nochats=user.bot_nochats,
+            min_=user.min,
+            bot_inline_geo=user.bot_inline_geo,
+            apply_min_photo=user.apply_min_photo,
+            bot_attach_menu=user.bot_attach_menu,
+            attach_menu_enabled=user.attach_menu_enabled,
+            bot_can_edit=user.bot_can_edit,
+            close_friend=user.close_friend,
+            stories_hidden=user.stories_hidden,
+            stories_unavailable=user.stories_unavailable,
+            contact_require_premium=user.contact_require_premium,
+            bot_business=user.bot_business,
+            usernames=user.usernames,
             client=client
         )
 

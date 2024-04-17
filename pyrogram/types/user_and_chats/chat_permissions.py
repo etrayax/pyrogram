@@ -53,6 +53,8 @@ class ChatPermissions(Object):
         can_pin_messages (``bool``, *optional*):
             True, if the user is allowed to pin messages.
             Ignored in public supergroups.
+
+        NOTE: New parameters have been added, but I'm not in the mood to write description.
     """
 
     def __init__(
@@ -65,7 +67,16 @@ class ChatPermissions(Object):
         can_add_web_page_previews: bool = None,
         can_change_info: bool = None,
         can_invite_users: bool = None,
-        can_pin_messages: bool = None
+        can_pin_messages: bool = None,
+        can_manage_topics: bool = None,
+        can_send_photos: bool = None,
+        can_send_videos: bool = None,
+        can_send_roundvideos: bool = None,
+        can_send_audios: bool = None,
+        can_send_voices: bool = None,
+        can_send_docs: bool = None,
+        can_send_plain: bool = None,
+        can_view_messages: bool = None
     ):
         super().__init__(None)
 
@@ -77,6 +88,15 @@ class ChatPermissions(Object):
         self.can_change_info = can_change_info
         self.can_invite_users = can_invite_users
         self.can_pin_messages = can_pin_messages
+        self.can_manage_topics = can_manage_topics
+        self.can_send_photos = can_send_photos
+        self.can_send_videos = can_send_videos
+        self.can_send_roundvideos = can_send_roundvideos
+        self.can_send_audios = can_send_audios
+        self.can_send_voices = can_send_voices
+        self.can_send_docs = can_send_docs
+        self.can_send_plain = can_send_plain
+        self.can_view_messages = can_view_messages
 
     @staticmethod
     def _parse(denied_permissions: "raw.base.ChatBannedRights") -> "ChatPermissions":
@@ -94,5 +114,14 @@ class ChatPermissions(Object):
                 can_send_polls=not denied_permissions.send_polls,
                 can_change_info=not denied_permissions.change_info,
                 can_invite_users=not denied_permissions.invite_users,
-                can_pin_messages=not denied_permissions.pin_messages
+                can_pin_messages=not denied_permissions.pin_messages,
+                can_manage_topics=not denied_permissions.manage_topics,
+                can_send_photos=not denied_permissions.send_photos,
+                can_send_videos=not denied_permissions.send_videos,
+                can_send_roundvideos=not denied_permissions.send_roundvideos,
+                can_send_audios=not denied_permissions.send_audios,
+                can_send_voices=not denied_permissions.send_voices,
+                can_send_docs=not denied_permissions.send_docs,
+                can_send_plain=not denied_permissions.send_plain,
+                can_view_messages=not denied_permissions.view_messages,
             )

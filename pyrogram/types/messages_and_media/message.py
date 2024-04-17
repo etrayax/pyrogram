@@ -626,7 +626,8 @@ class Message(Object, Update):
             is_scheduled: bool = False,
             replies: int = 1
     ):
-        message = update.message
+
+        message = update.message if hasattr(update, "message") else update
 
         if isinstance(message, raw.types.MessageEmpty):
             return Message(id=message.id, empty=True, client=client)
