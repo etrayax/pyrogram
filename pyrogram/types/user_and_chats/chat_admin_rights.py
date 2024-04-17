@@ -30,57 +30,57 @@ class ChatAdminRights(Object):
     def __init__(
         self,
         *,
-        change_info: bool = None,
-        post_messages: bool = None,
-        edit_messages: bool = None,
-        delete_messages: bool = None,
-        ban_users: bool = None,
-        invite_users: bool = None,
-        pin_messages: bool = None,
-        add_admins: bool = None,
-        anonymous: bool = None,
-        manage_call: bool = None,
-        other: bool = None,
-        manage_topics: bool = None,
-        post_stories: bool = None,
-        edit_stories: bool = None,
-        delete_stories: bool = None,
+        can_change_info: bool = None,
+        can_post_messages: bool = None,
+        can_edit_messages: bool = None,
+        can_delete_messages: bool = None,
+        can_ban_users: bool = None,
+        can_invite_users: bool = None,
+        can_pin_messages: bool = None,
+        can_add_admins: bool = None,
+        can_anonymous: bool = None,
+        can_manage_call: bool = None,
+        can_other: bool = None,
+        can_manage_topics: bool = None,
+        can_post_stories: bool = None,
+        can_edit_stories: bool = None,
+        can_delete_stories: bool = None,
     ):
         super().__init__(None)
 
-        self.change_info = change_info
-        self.post_messages = post_messages
-        self.edit_messages = edit_messages
-        self.delete_messages = delete_messages
-        self.ban_users = ban_users
-        self.invite_users = invite_users
-        self.pin_messages = pin_messages
-        self.add_admins = add_admins
-        self.anonymous = anonymous
-        self.manage_call = manage_call
-        self.other = other
-        self.manage_topics = manage_topics
-        self.post_stories = post_stories
-        self.edit_stories = edit_stories
-        self.delete_stories = delete_stories
+        self.change_info = can_change_info
+        self.post_messages = can_post_messages
+        self.edit_messages = can_edit_messages
+        self.delete_messages = can_delete_messages
+        self.ban_users = can_ban_users
+        self.invite_users = can_invite_users
+        self.pin_messages = can_pin_messages
+        self.add_admins = can_add_admins
+        self.anonymous = can_anonymous
+        self.manage_call = can_manage_call
+        self.other = can_other
+        self.manage_topics = can_manage_topics
+        self.post_stories = can_post_stories
+        self.edit_stories = can_edit_stories
+        self.delete_stories = can_delete_stories
 
     @staticmethod
     def _parse(permission: "raw.base.ChatAdminRights") -> "ChatAdminRights":
         if isinstance(permission, raw.types.ChatAdminRights):
             return ChatAdminRights(
-                change_info=permission.change_info,
-                post_messages=permission.post_messages,
-                edit_messages=permission.edit_messages,
-                delete_messages=permission.delete_messages,
-                ban_users=permission.ban_users,
-                invite_users=permission.invite_users,
-                pin_messages=permission.pin_messages,
-                add_admins=permission.add_admins,
-                anonymous=permission.anonymous,
-                manage_call=permission.manage_call,
-                other=permission.other,
-                manage_topics=permission.manage_topics,
-                post_stories=permission.post_stories,
-                edit_stories=permission.edit_stories,
-                delete_stories=permission.delete_stories,
+                can_change_info=permission.change_info,
+                can_post_messages=permission.post_messages,
+                can_edit_messages=permission.edit_messages,
+                can_delete_messages=permission.delete_messages,
+                can_ban_users=permission.ban_users,
+                can_invite_users=permission.invite_users,
+                can_pin_messages=permission.pin_messages,
+                can_add_admins=permission.add_admins,
+                can_anonymous=permission.anonymous,
+                can_manage_call=permission.manage_call,
+                can_other=permission.other,
+                can_manage_topics=permission.manage_topics,
+                can_post_stories=permission.post_stories,
+                can_edit_stories=permission.edit_stories,
+                can_delete_stories=permission.delete_stories,
             )

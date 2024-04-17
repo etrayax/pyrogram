@@ -184,7 +184,7 @@ class User(Object, Update):
         last_online_date: datetime = None,
         next_offline_date: datetime = None,
         username: str = None,
-        usernames: Optional[List["raw.base.Username"]] = None,
+        usernames: Optional[List["types.Username"]] = None,
         language_code: str = None,
         emoji_status: Optional["types.EmojiStatus"] = None,
         color: Optional["types.PeerColor"] = None,
@@ -288,7 +288,7 @@ class User(Object, Update):
             stories_unavailable=user.stories_unavailable,
             contact_require_premium=user.contact_require_premium,
             bot_business=user.bot_business,
-            usernames=user.usernames,
+            usernames=[types.Username._parse(u) for u in user.usernames],
             client=client
         )
 

@@ -29,7 +29,6 @@ class SendMessage:
             self: "pyrogram.Client",
             chat_id: Union[int, str],
             text: str,
-            business_connection_id: str = None,
             parse_mode: Optional["enums.ParseMode"] = None,
             entities: List["types.MessageEntity"] = None,
             disable_web_page_preview: bool = None,
@@ -37,6 +36,7 @@ class SendMessage:
             reply_to_message_id: int = None,
             schedule_date: datetime = None,
             protect_content: bool = None,
+            business_connection_id: str = None,
             reply_markup: Union[
                 "types.InlineKeyboardMarkup",
                 "types.ReplyKeyboardMarkup",
@@ -183,8 +183,9 @@ class SendMessage:
                               raw.types.UpdateBotEditBusinessMessage,
                               raw.types.UpdateBotNewBusinessMessage)):
                 return await types.Message._parse(
-                    self, i,
+                    self, i.message,
                     {i.id: i for i in r.users},
                     {i.id: i for i in r.chats},
-                    is_scheduled=isinstance(i, raw.types.UpdateNewScheduledMessage)
+                    is_scheduled=isinstance(i, raw.types.UpdateNewScheduledMessage),
+                    connection_id=business_connection_id
                 )

@@ -31,6 +31,7 @@ class SendGame:
         disable_notification: bool = None,
         reply_to_message_id: int = None,
         protect_content: bool = None,
+        business_connection_id: str = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -88,13 +89,15 @@ class SendGame:
                 random_id=self.rnd_id(),
                 noforwards=protect_content,
                 reply_markup=await reply_markup.write(self) if reply_markup else None
-            )
+            ),
+            business_connection_id=business_connection_id
         )
 
         for i in r.updates:
-            if isinstance(i, (raw.types.UpdateNewMessage, raw.types.UpdateNewChannelMessage)):
+            if isinstance(i, (raw.types.UpdateNewMessage, raw.types.UpdateNewChannelMessage, raw.types.UpdateBotNewBusinessMessage, raw.types.UpdateBotEditBusinessMessage)):
                 return await types.Message._parse(
                     self, i.message,
                     {i.id: i for i in r.users},
-                    {i.id: i for i in r.chats}
+                    {i.id: i for i in r.chats},
+                    connection_id=business_connection_id
                 )

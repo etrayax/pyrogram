@@ -619,21 +619,21 @@ class Message(Object, Update):
 
     @staticmethod
     async def _parse(
-            client: "pyrogram.Client",
-            update: Any,
-            users: dict,
-            chats: dict,
-            is_scheduled: bool = False,
-            replies: int = 1
+        client: "pyrogram.Client",
+        message: "types.Message",
+        users: dict,
+        chats: dict,
+        is_scheduled: bool = False,
+        replies: int = 1,
+        connection_id: str = None
     ):
-
-        message = update.message if hasattr(update, "message") else update
-
+        
         if isinstance(message, raw.types.MessageEmpty):
             return Message(id=message.id, empty=True, client=client)
 
         from_id = utils.get_raw_peer_id(message.from_id)
         peer_id = utils.get_raw_peer_id(message.peer_id)
+        
         user_id = from_id or peer_id
 
         if isinstance(message.from_id, raw.types.PeerUser) and isinstance(message.peer_id, raw.types.PeerUser):
@@ -721,7 +721,7 @@ class Message(Object, Update):
 
             from_user = types.User._parse(client, users.get(user_id, None))
             sender_chat = types.Chat._parse(client, message, users, chats, is_chat=False) if not from_user else None
-
+            
             parsed_message = Message(
                 id=message.id,
                 date=utils.timestamp_to_datetime(message.date),
@@ -743,6 +743,7 @@ class Message(Object, Update):
                 video_chat_ended=video_chat_ended,
                 video_chat_members_invited=video_chat_members_invited,
                 web_app_data=web_app_data,
+                business_connection_id=connection_id,
                 client=client
                 # TODO: supergroup_chat_created
             )
@@ -822,14 +823,10 @@ class Message(Object, Update):
             web_page = None
             poll = None
             dice = None
-            connection_id = None
 
             media = message.media
             media_type = None
             has_media_spoiler = None
-
-            if isinstance(update, (raw.types.UpdateBotNewBusinessMessage, raw.types.UpdateBotEditBusinessMessage)):
-                connection_id = update.connection_id
 
             if media:
                 if isinstance(media, raw.types.MessageMediaPhoto):
@@ -920,6 +917,7 @@ class Message(Object, Update):
                     reply_markup = None
 
             from_user = types.User._parse(client, users.get(user_id, None))
+            sender_business_bot = types.User._parse(client, users.get(message.via_business_bot_id, None))
             sender_chat = types.Chat._parse(client, message, users, chats, is_chat=False) if not from_user else None
 
             reactions = types.MessageReactions._parse(client, message.reactions)
@@ -930,6 +928,7 @@ class Message(Object, Update):
                 chat=types.Chat._parse(client, message, users, chats, is_chat=True),
                 from_user=from_user,
                 sender_chat=sender_chat,
+                sender_business_bot=sender_business_bot,
                 text=(
                     Str(message.message).init(entities) or None
                     if media is None or web_page is not None
@@ -1065,7 +1064,8 @@ class Message(Object, Update):
             reply_to_message_id: int = None,
             schedule_date: datetime = None,
             protect_content: bool = None,
-            reply_markup=None
+            business_connection_id: str = None,
+            reply_markup=None,
     ) -> "Message":
         """Bound method *reply_text* of :obj:`~pyrogram.types.Message`.
 
@@ -1144,7 +1144,8 @@ class Message(Object, Update):
             reply_to_message_id=reply_to_message_id,
             schedule_date=schedule_date,
             protect_content=protect_content,
-            reply_markup=reply_markup
+            reply_markup=reply_markup,
+            business_connection_id=business_connection_id
         )
 
     reply = reply_text
@@ -1162,6 +1163,7 @@ class Message(Object, Update):
             height: int = 0,
             thumb: str = None,
             disable_notification: bool = None,
+            business_connection_id: str = None,
             reply_markup: Union[
                 "types.InlineKeyboardMarkup",
                 "types.ReplyKeyboardMarkup",

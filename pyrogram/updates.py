@@ -16,10 +16,11 @@ class Parser:
                 UpdateEditChannelMessage, UpdateBotNewBusinessMessage, UpdateBotEditBusinessMessage)):
             return await pyrogram.types.Message._parse(
                 self.client,
-                update,
+                update.message,
                 users,
                 chats,
                 is_scheduled=isinstance(update, UpdateNewScheduledMessage),
+                connection_id=getattr(update, "connection_id", None)
             )
 
         if isinstance(update, (UpdateDeleteMessages, UpdateDeleteChannelMessages)):

@@ -180,7 +180,8 @@ class Chat(Object):
         stories_hidden: bool = None,
         stories_hidden_min: bool = None,
         stories_unavailable: bool = None,
-        usernames: Optional[List["raw.base.Username"]] = None
+        apply_min_photo: bool = None,
+        usernames: Optional[List["types.Username"]] = None
     ):
         super().__init__(client)
 
@@ -234,7 +235,7 @@ class Chat(Object):
     @staticmethod
     def _parse_user_chat(client, user: raw.types.User) -> "Chat":
         peer_id = user.id
-
+        
         return Chat(
             id=peer_id,
             type=enums.ChatType.BOT if user.bot else enums.ChatType.PRIVATE,
@@ -250,9 +251,10 @@ class Chat(Object):
             restrictions=types.List([types.Restriction._parse(r) for r in user.restriction_reason]) or None,
             dc_id=getattr(getattr(user, "photo", None), "dc_id", None),
             min_=user.min,
+            apply_min_photo=user.apply_min_photo,
             stories_hidden=user.stories_hidden,
             stories_unavailable=user.stories_unavailable,
-            usernames=user.usernames,
+            usernames=[types.Username._parse(u) for u in user.usernames],
             client=client
         )
 
@@ -316,7 +318,7 @@ class Chat(Object):
             stories_hidden=channel.stories_hidden,
             stories_hidden_min=channel.stories_hidden_min,
             stories_unavailable=channel.stories_unavailable,
-            usernames=channel.usernames,
+            usernames=[types.Username._parse(u) for u in channel.usernames],
             client=client
         )
 

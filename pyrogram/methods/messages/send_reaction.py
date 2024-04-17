@@ -29,7 +29,7 @@ class SendReaction:
             message_id: int = None,
             emoji: Union[int, str, List[Union[int, str]]] = None,
             story_id: int = None,
-            big: bool = False
+            big: bool = False,
     ) -> bool:
         """Send a reaction to a message or story.
 

@@ -46,6 +46,7 @@ class SendMediaGroup:
         reply_to_message_id: int = None,
         schedule_date: datetime = None,
         protect_content: bool = None,
+        business_connection_id: str = None,
     ) -> List["types.Message"]:
         """Send a group of photos or videos as an album.
 
@@ -103,7 +104,8 @@ class SendMediaGroup:
                                     file=await self.save_file(i.media),
                                     spoiler=i.has_spoiler
                                 )
-                            )
+                            ),
+                            business_connection_id=business_connection_id
                         )
 
                         media = raw.types.InputMediaPhoto(
@@ -122,7 +124,8 @@ class SendMediaGroup:
                                     url=i.media,
                                     spoiler=i.has_spoiler
                                 )
-                            )
+                            ),
+                            business_connection_id=business_connection_id
                         )
 
                         media = raw.types.InputMediaPhoto(
@@ -143,7 +146,8 @@ class SendMediaGroup:
                                 file=await self.save_file(i.media),
                                 spoiler=i.has_spoiler
                             )
-                        )
+                        ),
+                        business_connection_id=business_connection_id
                     )
 
                     media = raw.types.InputMediaPhoto(
@@ -175,7 +179,8 @@ class SendMediaGroup:
                                         raw.types.DocumentAttributeFilename(file_name=os.path.basename(i.media))
                                     ]
                                 )
-                            )
+                            ),
+                            business_connection_id=business_connection_id
                         )
 
                         media = raw.types.InputMediaDocument(
@@ -194,7 +199,8 @@ class SendMediaGroup:
                                     url=i.media,
                                     spoiler=i.has_spoiler
                                 )
-                            )
+                            ),
+                            business_connection_id=business_connection_id
                         )
 
                         media = raw.types.InputMediaDocument(
@@ -226,7 +232,8 @@ class SendMediaGroup:
                                     raw.types.DocumentAttributeFilename(file_name=getattr(i.media, "name", "video.mp4"))
                                 ]
                             )
-                        )
+                        ),
+                        business_connection_id=business_connection_id
                     )
 
                     media = raw.types.InputMediaDocument(
@@ -256,7 +263,8 @@ class SendMediaGroup:
                                         raw.types.DocumentAttributeFilename(file_name=os.path.basename(i.media))
                                     ]
                                 )
-                            )
+                            ),
+                            business_connection_id=business_connection_id
                         )
 
                         media = raw.types.InputMediaDocument(
@@ -273,7 +281,8 @@ class SendMediaGroup:
                                 media=raw.types.InputMediaDocumentExternal(
                                     url=i.media
                                 )
-                            )
+                            ),
+                            business_connection_id=business_connection_id
                         )
 
                         media = raw.types.InputMediaDocument(
@@ -302,7 +311,8 @@ class SendMediaGroup:
                                     raw.types.DocumentAttributeFilename(file_name=getattr(i.media, "name", "audio.mp3"))
                                 ]
                             )
-                        )
+                        ),
+                        business_connection_id=business_connection_id
                     )
 
                     media = raw.types.InputMediaDocument(
@@ -326,7 +336,8 @@ class SendMediaGroup:
                                         raw.types.DocumentAttributeFilename(file_name=os.path.basename(i.media))
                                     ]
                                 )
-                            )
+                            ),
+                            business_connection_id=business_connection_id
                         )
 
                         media = raw.types.InputMediaDocument(
@@ -343,7 +354,8 @@ class SendMediaGroup:
                                 media=raw.types.InputMediaDocumentExternal(
                                     url=i.media
                                 )
-                            )
+                            ),
+                            business_connection_id=business_connection_id
                         )
 
                         media = raw.types.InputMediaDocument(
@@ -369,7 +381,8 @@ class SendMediaGroup:
                                     raw.types.DocumentAttributeFilename(file_name=getattr(i.media, "name", "file.zip"))
                                 ]
                             )
-                        )
+                        ),
+                        business_connection_id=business_connection_id
                     )
 
                     media = raw.types.InputMediaDocument(
@@ -399,7 +412,8 @@ class SendMediaGroup:
                 schedule_date=utils.datetime_to_timestamp(schedule_date),
                 noforwards=protect_content
             ),
-            sleep_threshold=60
+            sleep_threshold=60,
+            business_connection_id=business_connection_id
         )
 
         return await utils.parse_messages(
@@ -408,10 +422,13 @@ class SendMediaGroup:
                 messages=[m.message for m in filter(
                     lambda u: isinstance(u, (raw.types.UpdateNewMessage,
                                              raw.types.UpdateNewChannelMessage,
-                                             raw.types.UpdateNewScheduledMessage)),
+                                             raw.types.UpdateNewScheduledMessage,
+                                             raw.types.UpdateBotNewBusinessMessage,
+                                             raw.types.UpdateBotEditBusinessMessage)),
                     r.updates
                 )],
                 users=r.users,
-                chats=r.chats
+                chats=r.chats,
+                connection_id=business_connection_id
             )
         )
