@@ -181,6 +181,12 @@ async def bot_filter(_, __, m: Message):
 bot = create(bot_filter)
 """Filter messages coming from bots."""
 
+async def business_filter(_, __, m: Message):
+    return bool(m.business_connection_id)
+
+
+business = create(business_filter)
+"""Filter messages coming from business account."""
 
 # endregion
 

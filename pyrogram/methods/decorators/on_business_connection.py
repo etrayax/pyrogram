@@ -28,7 +28,7 @@ class OnBusinessConnection:
         filters=None,
         group: int = 0
     ) -> Callable:
-        """Decorator for handling business connections.
+        """Decorator for handling bsuiness connections.
 
         This does the same thing as :meth:`~pyrogram.Client.add_handler` using the
         :obj:`~pyrogram.handlers.BusinessConnectionHandler`.

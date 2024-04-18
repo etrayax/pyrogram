@@ -28,14 +28,14 @@ class OnMessageReactionCount:
         filters=None,
         group: int = 0
     ) -> Callable:
-        """Decorator for handling new message reaction count.
+        """Decorator for handling new anonymous reactions.
 
         This does the same thing as :meth:`~pyrogram.Client.add_handler` using the
         :obj:`~pyrogram.handlers.MessageReactionCountHandler`.
 
         Parameters:
             filters (:obj:`~pyrogram.filters`, *optional*):
-                Pass one or more filters to allow only a subset of message reaction count to be passed
+                Pass one or more filters to allow only a subset of reactions to be passed
                 in your function.
 
             group (``int``, *optional*):

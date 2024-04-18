@@ -28,14 +28,14 @@ class OnDeletedBusinessMessages:
         filters=None,
         group: int = 0
     ) -> Callable:
-        """Decorator for handling business messages have been deleted.
+        """Decorator for handling deleted messages.
 
         This does the same thing as :meth:`~pyrogram.Client.add_handler` using the
-        :obj:`~pyrogram.handlers.DeleteBusinessMessagesHandler`.
+        :obj:`~pyrogram.handlers.DeletedBusinessMessagesHandler`.
 
         Parameters:
             filters (:obj:`~pyrogram.filters`, *optional*):
-                Pass one or more filters to allow only a subset of business messages to be passed
+                Pass one or more filters to allow only a subset of messages to be passed
                 in your function.
 
             group (``int``, *optional*):
@@ -44,14 +44,14 @@ class OnDeletedBusinessMessages:
 
         def decorator(func: Callable) -> Callable:
             if isinstance(self, pyrogram.Client):
-                self.add_handler(pyrogram.handlers.DeleteBusinessMessagesHandler(func, filters), group)
+                self.add_handler(pyrogram.handlers.DeletedBusinessMessagesHandler(func, filters), group)
             elif isinstance(self, Filter) or self is None:
                 if not hasattr(func, "handlers"):
                     func.handlers = []
 
                 func.handlers.append(
                     (
-                        pyrogram.handlers.DeleteBusinessMessagesHandler(func, self),
+                        pyrogram.handlers.DeletedBusinessMessagesHandler(func, self),
                         group if filters is None else filters
                     )
                 )
